@@ -18,27 +18,24 @@ jobs:
       - name: Install deps
         run: pip install ics python-dateutil requests
 
-      # 👇 INSERTED STEP — this is the one I meant
-      - name: Show config
+      # ---- DEBUG: print config.json exactly as the runner sees it ----
+      - name: Show config (debug)
         run: |
-          echo "---- config.json ----"
-          cat config.json
-          echo "---------------------"
+          echo "---- config.json (with line numbers) ----"
+          nl -ba config.json || true
+          echo "---- hidden characters (cat -A) ----"
+          cat -A config.json || true
+          echo "---- repo listing ----"
+          ls -la
           echo "---- CSV preview ----"
           head -n 5 schedule_template.csv || true
-          echo "---------------------"
+          echo "------------------------------------------------"
 
+      # ---- Generate the ICS files ----
       - name: Generate feeds
         run: python gen_ics.py
 
+      # ---- Commit any changed .ics files in docs/feeds ----
       - name: Commit changes if any
         run: |
-          if [[ -n "$(git status --porcelain docs/feeds)" ]]; then
-            git config user.name "github-actions"
-            git config user.email "actions@github.com"
-            git add docs/feeds
-            git commit -m "Update ICS feeds"
-            git push
-          else
-            echo "No changes to commit."
-          fi
+          if
