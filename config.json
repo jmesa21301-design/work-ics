@@ -2,7 +2,7 @@
   {
     "token": "work--ePKbUziDWyCdnfL",
     "name": "My Work Shifts",
-    "csv_url": "data/schedule_template.csv",
+    "csv_url": "schedule_template.csv"
     "timezone": "America/New_York"
   }
 ]
