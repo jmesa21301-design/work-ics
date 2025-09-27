@@ -23,14 +23,36 @@ jobs:
         run: python gen_ics.py
 
       - name: Show outputs
+        shell: bash
         run: |
           echo "::group::ls docs/feeds"
           ls -la docs/feeds || true
           echo "::endgroup::"
           echo "::group::preview ICS"
           for f in docs/feeds/*.ics; do
-            [ -f "$f" ] && { echo "---- $f ----"; head -n 5 "$f"; }
+            [ -f "$f" ] && { echo "---- $f ----"; head -n 10 "$f"; }
           done
           echo "::endgroup::"
           echo "::group::check-ignore"
-          git check-ignore -v docs/feeds/*.ics || echo "No .ics*
+          git check-ignore -v docs/feeds/*.ics || echo "No .ics ignored"
+          echo "::endgroup::"
+
+      - name: Upload ICS as artifact (debug)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ics-output
+          path: docs/feeds/*.ics
+          if-no-files-found: warn
+
+      - name: Commit changes if any (force add)
+        shell: bash
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add -f docs/feeds/*.ics || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Update ICS feeds"
+            git push
+          fi
