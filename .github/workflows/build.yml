@@ -17,18 +17,8 @@ jobs:
           python-version: '3.11'
       - name: Install deps
         run: pip install ics python-dateutil requests
-
-      # Force-write a clean config.json so JSON parsing can't fail
-      - name: Write clean config.json
-        run: |
-          cat > config.json <<'JSON'
-          [{"token":"work-abc123xyz","name":"My Work Shifts","csv_url":"schedule_template.csv","timezone":"America/New_York"}]
-          JSON
-          echo "Wrote clean config.json:" && cat config.json
-
       - name: Generate feeds
         run: python gen_ics.py
-
       - name: Commit changes if any
         run: |
           if [[ -n "$(git status --porcelain docs/feeds)" ]]; then
