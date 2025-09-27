@@ -2,3 +2,4 @@ title,start,end,all_day,location,description,timezone,uid
 Day shift,2025-10-01 07:00,2025-10-01 19:00,FALSE,Main Unit,Regular shift,America/New_York,WORK-1001
 Night shift,2025-10-03 19:00,2025-10-04 07:00,FALSE,Main Unit,Overnight,America/New_York,WORK-1002
 Payday,2025-10-15,,TRUE,,Payday,,WORK-1003
+
