@@ -1,4 +1,4 @@
-title,start,end,all_day,location,description,timezone,uid
-Day shift,2025-10-05 07:00,2025-10-05 19:00,FALSE,Unit 3,Med-Surg,America/New_York,WORK-1001
-Night shift,2025-10-06 19:00,2025-10-07 07:00,FALSE,Unit 3,Med-Surg,America/New_York,WORK-1002
-All-day conference,2025-10-10,,TRUE,Main Campus,Annual Training,America/New_York,CONF-2025
+﻿Title,Start,End,All Day?,Location,Description,Time Zone,UID
+Day Shift,10/1/25 7:00,10/1/25 19:00,FALSE,Main Unit,Regular Shift,America/New_York,
+Night Shift,10/3/25 19:00,10/4/25 7:00,FALSE,Main Unit,Regular Shift,America/New_York,
+Payday,10/15/25,,TRUE,Main Unit,Regular Shift,America/New_York,
