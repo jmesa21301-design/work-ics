@@ -30,18 +30,11 @@ def main():
     text = fetch_text(CSV_SRC)
     reader = csv.DictReader(io.StringIO(text))
 
-    # Normalize the header names so minor differences don’t break parsing
+    # Normalize header names so tiny differences don’t break parsing
     if reader.fieldnames:
         normalized = [_norm_header(h) for h in reader.fieldnames]
-        # Map common aliases to canonical names
-        aliases = {
-            "allday": "all_day",
-            "all_day": "all_day",
-            "time_zone": "timezone",
-            "tz": "timezone",
-        }
-        normalized = [aliases.get(h, h) for h in normalized]
-        reader.fieldnames = normalized
+        aliases = {"allday": "all_day", "all_day": "all_day", "time_zone": "timezone", "tz": "timezone"}
+        reader.fieldnames = [aliases.get(h, h) for h in normalized]
 
     cal = Calendar()
     tzinfo = tz.gettz(DEFAULT_TZ) if DEFAULT_TZ else None
@@ -51,8 +44,6 @@ def main():
 
     for row in reader:
         total_rows += 1
-
-        # keys are now normalized (e.g., title,start,end,all_day,location,description,timezone,uid)
         title = (row.get("title") or "").strip()
         start = (row.get("start") or "").strip()
         if not title or not start:
