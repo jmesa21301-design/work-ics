@@ -1,6 +1,6 @@
 [
   {
-    "token": "work-abc123xyz", 
+    "token": "work-abc123xyz",
     "name": "My Work Shifts",
     "csv_url": "schedule_template.csv",
     "timezone": "America/New_York"
