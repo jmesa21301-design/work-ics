@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install deps
-        run: pip install ics python-dateutil requests
+        run: pip install "ics==0.7.2" python-dateutil requests
       - name: Generate feeds
         run: python gen_ics.py
       - name: Commit changes if any
