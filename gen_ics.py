@@ -1,73 +1,43 @@
-# gen_ics.py
-# Build .ics calendars from CSV/Google Sheets.
-# Requires: ics, python-dateutil, requests
-
-import csv
-import io
-import json
-import sys
+# gen_ics.py — no JSON needed; builds .ics from a CSV or a published Google Sheet
+import csv, io
 from pathlib import Path
-
 from dateutil import tz, parser
 from ics import Calendar, Event
 
-# Optional import: requests (only needed for http(s) CSV)
-try:
-    import requests  # type: ignore
-except Exception:  # pragma: no cover
-    requests = None  # workflow installs it; local runs can skip web URLs
-
-CFG_PATH = Path("config.json")
-OUT_DIR = Path("docs/feeds")
-
-# Keep this in sync with your workflow's "Write clean config.json" step.
-FALLBACK_CFG = [{
-    "token": "work-abc123xyz",
-    "name": "My Work Shifts",
-    "csv_url": "schedule_template.csv",
-    "timezone": "America/New_York",
+# <<< EDIT THESE 3 VALUES IF YOU WANT >>>
+CONFIG = [{
+    "token": "work-abc123xyz",                 # this becomes feeds/<token>.ics
+    "name":  "My Work Shifts",                 # calendar display name
+    "csv_url": "schedule_template.csv",        # or paste a published Google Sheets CSV URL
+    "timezone": "America/New_York",            # default TZ if rows don't have a timezone column
 }]
 
-
-def load_config() -> list[dict]:
-    """
-    Load config.json. If it is missing/empty/invalid, use FALLBACK_CFG.
-    """
-    try:
-        text = CFG_PATH.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        print("[warn] config.json not found; using fallback", file=sys.stderr)
-        return FALLBACK_CFG
-
-    text = text.strip()
-    if not text:
-        print("[warn] config.json is empty; using fallback", file=sys.stderr)
-        return FALLBACK_CFG
-
-    try:
-        cfg = json.loads(text)
-        if not isinstance(cfg, list):
-            raise ValueError("config.json must be a JSON list []")
-        return cfg
-    except Exception as e:
-        print(f"[warn] config.json parse failed ({e}); using fallback", file=sys.stderr)
-        return FALLBACK_CFG
-
+def _truthy(v): return str(v or "").strip().lower() in ("true","1","yes","y")
 
 def fetch_text(src: str) -> str:
-    """
-    Return CSV text from a local path or an http(s) URL.
-    """
-    if src.startswith(("http://", "https://")):
-        if requests is None:
-            raise RuntimeError("requests is not installed; cannot fetch web URL")
-        r = requests.get(src, timeout=20)
-        r.raise_for_status()
+    if src.startswith(("http://","https://")):
+        import requests
+        r = requests.get(src, timeout=20); r.raise_for_status()
         return r.text
-    p = Path(src)
-    if not p.exists():
-        raise FileNotFoundError(f"CSV not found: {src}")
-    return p.read_text(encoding="utf-8")
+    return Path(src).read_text(encoding="utf-8")
 
-
-def _truth_
+def row_to_event(row: dict, default_tz: str | None):
+    e = Event()
+    e.name = (row.get("title") or "Untitled").strip()
+    tzname = (row.get("timezone") or default_tz or "").strip()
+    tzinfo = tz.gettz(tzname) if tzname else None
+    if _truthy(row.get("all_day")):
+        e.begin = parser.parse(row["start"]).date()
+        if row.get("end"): e.end = parser.parse(row["end"]).date()
+        e.make_all_day()
+    else:
+        start = parser.parse(row["start"])
+        if tzinfo: start = start.replace(tzinfo=tzinfo)
+        e.begin = start
+        if row.get("end"):
+            end = parser.parse(row["end"])
+            if tzinfo: end = end.replace(tzinfo=tzinfo)
+            e.end = end
+    e.location = (row.get("location") or "").strip()
+    e.description = (row.get("description") or "").strip()
+    if row
