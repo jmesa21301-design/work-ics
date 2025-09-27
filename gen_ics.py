@@ -74,7 +74,7 @@ def build_feed(name: str, csv_src: str, outpath: Path, default_tz: str | None):
     outpath.write_text(str(cal), encoding="utf-8")
 
 def main():
-    cfg = json.loads(CFG_PATH.read_text(encoding="utf-8"))
+    cfg = [{"token":"work-abc123xyz","name":"My Work Shifts","csv_url":"schedule_template.csv","timezone":"America/New_York"}]
     for entry in cfg:
         token = entry["token"]
         name = entry.get("name","My Calendar")
