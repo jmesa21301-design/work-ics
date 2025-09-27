@@ -3,16 +3,34 @@ on:
   schedule:
     - cron: '0 * * * *'   # hourly (UTC)
   workflow_dispatch:
-permissions: { contents: write }
+
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
-      - run: pip install ics python-dateutil requests
-      - run: python gen_ics.py
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: pip install ics python-dateutil requests
+
+      # 👇 INSERTED STEP — this is the one I meant
+      - name: Show config
+        run: |
+          echo "---- config.json ----"
+          cat config.json
+          echo "---------------------"
+          echo "---- CSV preview ----"
+          head -n 5 schedule_template.csv || true
+          echo "---------------------"
+
+      - name: Generate feeds
+        run: python gen_ics.py
+
       - name: Commit changes if any
         run: |
           if [[ -n "$(git status --porcelain docs/feeds)" ]]; then
