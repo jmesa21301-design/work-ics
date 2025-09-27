@@ -26,13 +26,15 @@ def main():
     text = fetch_text(CSV_SRC)
     reader = csv.DictReader(io.StringIO(text))
 
-    cal = Calendar()  # NOTE: capital C
-
+    cal = Calendar()
     tzinfo = tz.gettz(DEFAULT_TZ) if DEFAULT_TZ else None
+    added = 0
+
     for row in reader:
-        title = row.get("title"); start = row.get("start")
+        title = (row.get("title") or "").strip()
+        start = (row.get("start") or "").strip()
         if not title or not start:
-            continue  # NOTE: full word
+            continue
 
         e = Event()
         e.name = title
@@ -47,21 +49,24 @@ def main():
             if tzinfo:
                 s = s.replace(tzinfo=tzinfo)
             e.begin = s
-
             if row.get("end"):
                 end = parser.parse(row["end"])
                 if tzinfo:
                     end = end.replace(tzinfo=tzinfo)
                 e.end = end
 
-        e.location = row.get("location", "") or ""
-        e.description = row.get("description", "") or ""
+        e.location = row.get("location", "")
+        e.description = row.get("description", "")
         if row.get("uid"):
             e.uid = str(row["uid"])
 
         cal.events.add(e)
+        added += 1
 
     out = Path("docs/feeds") / f"{TOKEN}.ics"
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(cal.serialize(), encoding="utf-8")
-    print(f"[ok] wrote {out
+    print(f"[ok] wrote {out} with {added} event(s)")
+
+if __name__ == "__main__":
+    main()
