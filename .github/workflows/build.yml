@@ -18,7 +18,7 @@ jobs:
       - name: Install deps
         run: pip install ics python-dateutil requests
 
-      # Force a clean config.json so JSON parsing can't fail
+      # Force-write a clean config.json so JSON parsing can't fail
       - name: Write clean config.json
         run: |
           cat > config.json <<'JSON'
