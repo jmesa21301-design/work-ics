@@ -1,4 +1,5 @@
-﻿Title,Start,End,All Day?,Location,Description,Time Zone,UID
+﻿title,start,end,all day?,location,description,time zone,uid
 Day Shift,10/1/25 7:00,10/1/25 19:00,FALSE,Main Unit,Regular Shift,America/New_York,
 Night Shift,10/3/25 19:00,10/4/25 7:00,FALSE,Main Unit,Regular Shift,America/New_York,
+
 Payday,10/15/25,,TRUE,Main Unit,Regular Shift,America/New_York,
