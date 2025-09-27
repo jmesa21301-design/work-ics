@@ -18,24 +18,25 @@ jobs:
       - name: Install deps
         run: pip install ics python-dateutil requests
 
-      # ---- DEBUG: print config.json exactly as the runner sees it ----
-      - name: Show config (debug)
+      # Force a clean config.json so JSON parsing can't fail
+      - name: Write clean config.json
         run: |
-          echo "---- config.json (with line numbers) ----"
-          nl -ba config.json || true
-          echo "---- hidden characters (cat -A) ----"
-          cat -A config.json || true
-          echo "---- repo listing ----"
-          ls -la
-          echo "---- CSV preview ----"
-          head -n 5 schedule_template.csv || true
-          echo "------------------------------------------------"
+          cat > config.json <<'JSON'
+          [{"token":"work-abc123xyz","name":"My Work Shifts","csv_url":"schedule_template.csv","timezone":"America/New_York"}]
+          JSON
+          echo "Wrote clean config.json:" && cat config.json
 
-      # ---- Generate the ICS files ----
       - name: Generate feeds
         run: python gen_ics.py
 
-      # ---- Commit any changed .ics files in docs/feeds ----
       - name: Commit changes if any
         run: |
-          if
+          if [[ -n "$(git status --porcelain docs/feeds)" ]]; then
+            git config user.name "github-actions"
+            git config user.email "actions@github.com"
+            git add docs/feeds
+            git commit -m "Update ICS feeds"
+            git push
+          else
+            echo "No changes to commit."
+          fi
